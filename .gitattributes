@@ -1,0 +1,14 @@
+# 统一换行符，避免 Linux/macOS 上 mvnw 因 CRLF 报 "bad interpreter"
+* text=auto eol=lf
+
+# Windows 批处理必须 CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 二进制文件不做换行转换
+*.png binary
+*.jpg binary
+*.ico binary
+*.jar binary
+*.xlsx binary
+*.zip binary

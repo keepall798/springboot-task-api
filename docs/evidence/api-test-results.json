@@ -1,0 +1,203 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "runAt": "2026-10-20T07:23:41.889Z",
+  "nodeVersion": "v24.20.0",
+  "total": 9,
+  "passed": 9,
+  "failed": 0,
+  "results": [
+    {
+      "name": "01 新增任务 A（默认状态 TODO）",
+      "method": "POST",
+      "path": "/api/tasks",
+      "requestBody": {
+        "title": "学习 Spring Boot 增删改查-021692"
+      },
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "responseHeaders": {
+        "content-type": "application/json",
+        "location": "http://localhost:8080/api/tasks/1"
+      },
+      "responseBody": {
+        "id": 1,
+        "title": "学习 Spring Boot 增删改查-021692",
+        "status": "TODO",
+        "createdAt": "2026-10-20 15:23:41"
+      },
+      "durationMs": 52,
+      "passed": true
+    },
+    {
+      "name": "02 新增任务 B（指定状态 IN_PROGRESS）",
+      "method": "POST",
+      "path": "/api/tasks",
+      "requestBody": {
+        "title": "整理接口测试记录-021692",
+        "status": "IN_PROGRESS"
+      },
+      "expectedStatus": 201,
+      "actualStatus": 201,
+      "responseHeaders": {
+        "content-type": "application/json",
+        "location": "http://localhost:8080/api/tasks/2"
+      },
+      "responseBody": {
+        "id": 2,
+        "title": "整理接口测试记录-021692",
+        "status": "IN_PROGRESS",
+        "createdAt": "2026-10-20 15:23:41"
+      },
+      "durationMs": 15,
+      "passed": true
+    },
+    {
+      "name": "03 查询全部任务",
+      "method": "GET",
+      "path": "/api/tasks",
+      "requestBody": null,
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseHeaders": {
+        "content-type": "application/json"
+      },
+      "responseBody": [
+        {
+          "id": 2,
+          "title": "整理接口测试记录-021692",
+          "status": "IN_PROGRESS",
+          "createdAt": "2026-10-20 15:23:41"
+        },
+        {
+          "id": 1,
+          "title": "学习 Spring Boot 增删改查-021692",
+          "status": "TODO",
+          "createdAt": "2026-10-20 15:23:41"
+        }
+      ],
+      "durationMs": 15,
+      "passed": true
+    },
+    {
+      "name": "04 按 id 查询单个任务",
+      "method": "GET",
+      "path": "/api/tasks/1",
+      "requestBody": null,
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseHeaders": {
+        "content-type": "application/json"
+      },
+      "responseBody": {
+        "id": 1,
+        "title": "学习 Spring Boot 增删改查-021692",
+        "status": "TODO",
+        "createdAt": "2026-10-20 15:23:41"
+      },
+      "durationMs": 12,
+      "passed": true
+    },
+    {
+      "name": "05 更新任务（标题 + 状态改为 DONE）",
+      "method": "PUT",
+      "path": "/api/tasks/1",
+      "requestBody": {
+        "title": "学习 Spring Boot 增删改查-021692（已更新）",
+        "status": "DONE"
+      },
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseHeaders": {
+        "content-type": "application/json"
+      },
+      "responseBody": {
+        "id": 1,
+        "title": "学习 Spring Boot 增删改查-021692（已更新）",
+        "status": "DONE",
+        "createdAt": "2026-10-20 15:23:41"
+      },
+      "durationMs": 15,
+      "passed": true
+    },
+    {
+      "name": "06 删除任务",
+      "method": "DELETE",
+      "path": "/api/tasks/1",
+      "requestBody": null,
+      "expectedStatus": 204,
+      "actualStatus": 204,
+      "responseHeaders": {},
+      "responseBody": null,
+      "durationMs": 20,
+      "passed": true
+    },
+    {
+      "name": "07 查询已删除的任务（应 404）",
+      "method": "GET",
+      "path": "/api/tasks/1",
+      "requestBody": null,
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "responseHeaders": {
+        "content-type": "application/json"
+      },
+      "responseBody": {
+        "status": 404,
+        "error": "Not Found",
+        "message": "任务不存在，id=1",
+        "path": "/api/tasks/1",
+        "timestamp": "2026-10-20 15:23:41"
+      },
+      "durationMs": 9,
+      "passed": true
+    },
+    {
+      "name": "08 参数校验：空标题应 400",
+      "method": "POST",
+      "path": "/api/tasks",
+      "requestBody": {
+        "title": ""
+      },
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "responseHeaders": {
+        "content-type": "application/json"
+      },
+      "responseBody": {
+        "status": 400,
+        "error": "Bad Request",
+        "message": "请求参数校验失败",
+        "path": "/api/tasks",
+        "fieldErrors": {
+          "title": "标题不能为空"
+        },
+        "timestamp": "2026-10-20 15:23:41"
+      },
+      "durationMs": 33,
+      "passed": true
+    },
+    {
+      "name": "09 非法状态应 400",
+      "method": "POST",
+      "path": "/api/tasks",
+      "requestBody": {
+        "title": "非法状态测试",
+        "status": "UNKNOWN"
+      },
+      "expectedStatus": 400,
+      "actualStatus": 400,
+      "responseHeaders": {
+        "content-type": "application/json"
+      },
+      "responseBody": {
+        "status": 400,
+        "error": "Bad Request",
+        "message": "请求体 JSON 格式不正确；status 只能是 TODO、IN_PROGRESS、DONE",
+        "path": "/api/tasks",
+        "timestamp": "2026-10-20 15:23:41"
+      },
+      "durationMs": 7,
+      "passed": true
+    }
+  ]
+}

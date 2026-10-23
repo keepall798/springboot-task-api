@@ -1,0 +1,347 @@
+{
+  "info": {
+    "_postman_id": "8f14e45f-ceea-4d7a-9e4b-2f9d0e3a7c11",
+    "name": "任务清单 API（学习项目）",
+    "description": "任务清单后端的 5 个 REST 接口测试集合。\n\n使用前先启动后端，然后确认集合变量 baseUrl 是 http://localhost:8080。\n按顺序运行即可：新增 → 查全部 → 查单个 → 更新 → 删除 → 验证 404。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 新增任务",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 201\", function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"返回完整的任务字段\", function () {",
+              "  pm.expect(body.id).to.be.a(\"number\");",
+              "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查\");",
+              "  pm.expect(body.status).to.eql(\"TODO\");",
+              "  pm.expect(body.createdAt).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+              "});",
+              "",
+              "pm.test(\"响应头包含 Location\", function () {",
+              "  pm.expect(pm.response.headers.has(\"Location\")).to.be.true;",
+              "});",
+              "",
+              "pm.collectionVariables.set(\"taskId\", body.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查\",\n  \"status\": \"TODO\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks"
+          ]
+        },
+        "description": "新增一个任务。status 可以不传，默认是 TODO。成功返回 201 和 Location 响应头。"
+      }
+    },
+    {
+      "name": "02 查询全部任务",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const tasks = pm.response.json();",
+              "const taskId = Number(pm.collectionVariables.get(\"taskId\"));",
+              "",
+              "pm.test(\"返回 JSON 数组\", function () {",
+              "  pm.expect(tasks).to.be.an(\"array\");",
+              "});",
+              "",
+              "pm.test(\"列表中包含刚新增的任务\", function () {",
+              "  pm.expect(tasks.map(function (task) { return task.id; })).to.include(taskId);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks"
+          ]
+        },
+        "description": "查询全部任务，按创建时间倒序返回。"
+      }
+    },
+    {
+      "name": "03 查询单个任务",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "const taskId = Number(pm.collectionVariables.get(\"taskId\"));",
+              "",
+              "pm.test(\"返回指定 id 的任务\", function () {",
+              "  pm.expect(body.id).to.eql(taskId);",
+              "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks",
+            "{{taskId}}"
+          ]
+        },
+        "description": "按 id 查询单个任务，不存在时返回 404。"
+      }
+    },
+    {
+      "name": "04 更新任务",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"标题和状态都已更新\", function () {",
+              "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查（已完成）\");",
+              "  pm.expect(body.status).to.eql(\"DONE\");",
+              "});",
+              "",
+              "pm.test(\"创建时间保持不变\", function () {",
+              "  pm.expect(body.createdAt).to.be.a(\"string\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查（已完成）\",\n  \"status\": \"DONE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks",
+            "{{taskId}}"
+          ]
+        },
+        "description": "整体更新任务。PUT 要求同时提交 title 和 status。"
+      }
+    },
+    {
+      "name": "05 删除任务",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 204\", function () {",
+              "  pm.response.to.have.status(204);",
+              "});",
+              "",
+              "pm.test(\"删除成功时没有响应体\", function () {",
+              "  pm.expect(pm.response.text()).to.eql(\"\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks",
+            "{{taskId}}"
+          ]
+        },
+        "description": "删除任务，成功返回 204 No Content。"
+      }
+    },
+    {
+      "name": "06 查询已删除任务（应 404）",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"返回统一的错误结构\", function () {",
+              "  pm.expect(body.status).to.eql(404);",
+              "  pm.expect(body.message).to.include(\"任务不存在\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks",
+            "{{taskId}}"
+          ]
+        },
+        "description": "验证删除后该 id 已经查不到，返回 404。"
+      }
+    },
+    {
+      "name": "07 参数校验：空标题（应 400）",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"状态码为 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"返回 title 字段错误\", function () {",
+              "  pm.expect(body.fieldErrors.title).to.eql(\"标题不能为空\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/tasks",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "tasks"
+          ]
+        },
+        "description": "验证参数校验：标题为空时返回 400，并指出 title 字段错误。"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

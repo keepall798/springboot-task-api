@@ -1,0 +1,2445 @@
+{
+  "collection": {
+    "_": {
+      "postman_id": "8f14e45f-ceea-4d7a-9e4b-2f9d0e3a7c11"
+    },
+    "item": [
+      {
+        "id": "b0fcd1dc-a8ea-411a-922f-0d786acef16b",
+        "name": "01 新增任务",
+        "request": {
+          "description": {
+            "content": "新增一个任务。status 可以不传，默认是 TODO。成功返回 201 和 Location 响应头。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查\",\n  \"status\": \"TODO\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "02e32ead-da50-49d3-9375-f39101c95054",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 201\", function () {",
+                "  pm.response.to.have.status(201);",
+                "});",
+                "",
+                "const body = pm.response.json();",
+                "",
+                "pm.test(\"返回完整的任务字段\", function () {",
+                "  pm.expect(body.id).to.be.a(\"number\");",
+                "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查\");",
+                "  pm.expect(body.status).to.eql(\"TODO\");",
+                "  pm.expect(body.createdAt).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                "});",
+                "",
+                "pm.test(\"响应头包含 Location\", function () {",
+                "  pm.expect(pm.response.headers.has(\"Location\")).to.be.true;",
+                "});",
+                "",
+                "pm.collectionVariables.set(\"taskId\", body.id);"
+              ],
+              "_lastExecutionId": "37669502-eac3-4c66-8c99-14034050f7d9"
+            }
+          }
+        ]
+      },
+      {
+        "id": "eee7f124-4205-4ba0-bc59-729ff5274e10",
+        "name": "02 查询全部任务",
+        "request": {
+          "description": {
+            "content": "查询全部任务，按创建时间倒序返回。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "ef2b0e16-a560-467b-b2ba-6dfcd2704f50",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 200\", function () {",
+                "  pm.response.to.have.status(200);",
+                "});",
+                "",
+                "const tasks = pm.response.json();",
+                "const taskId = Number(pm.collectionVariables.get(\"taskId\"));",
+                "",
+                "pm.test(\"返回 JSON 数组\", function () {",
+                "  pm.expect(tasks).to.be.an(\"array\");",
+                "});",
+                "",
+                "pm.test(\"列表中包含刚新增的任务\", function () {",
+                "  pm.expect(tasks.map(function (task) { return task.id; })).to.include(taskId);",
+                "});"
+              ],
+              "_lastExecutionId": "4be24f59-c4ce-49b6-9112-f27f2bbf36c1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "4802f833-73ba-4cfb-ae94-e74e7204148c",
+        "name": "03 查询单个任务",
+        "request": {
+          "description": {
+            "content": "按 id 查询单个任务，不存在时返回 404。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks",
+              "{{taskId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "f5ffc530-bc91-4198-9939-be2a69bdeb54",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 200\", function () {",
+                "  pm.response.to.have.status(200);",
+                "});",
+                "",
+                "const body = pm.response.json();",
+                "const taskId = Number(pm.collectionVariables.get(\"taskId\"));",
+                "",
+                "pm.test(\"返回指定 id 的任务\", function () {",
+                "  pm.expect(body.id).to.eql(taskId);",
+                "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查\");",
+                "});"
+              ],
+              "_lastExecutionId": "24aff6a4-ee72-4aa0-9b46-efeb3dbf931d"
+            }
+          }
+        ]
+      },
+      {
+        "id": "15806eb8-5206-44f3-b8eb-1a13525ee7f0",
+        "name": "04 更新任务",
+        "request": {
+          "description": {
+            "content": "整体更新任务。PUT 要求同时提交 title 和 status。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks",
+              "{{taskId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查（已完成）\",\n  \"status\": \"DONE\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "366cb04b-8467-4b5f-bfd9-e006a707e012",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 200\", function () {",
+                "  pm.response.to.have.status(200);",
+                "});",
+                "",
+                "const body = pm.response.json();",
+                "",
+                "pm.test(\"标题和状态都已更新\", function () {",
+                "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查（已完成）\");",
+                "  pm.expect(body.status).to.eql(\"DONE\");",
+                "});",
+                "",
+                "pm.test(\"创建时间保持不变\", function () {",
+                "  pm.expect(body.createdAt).to.be.a(\"string\");",
+                "});"
+              ],
+              "_lastExecutionId": "d9610e37-9b08-4476-88d0-2aaa3ce2f397"
+            }
+          }
+        ]
+      },
+      {
+        "id": "a828696e-f0fc-4634-8faa-f1f59baf7ac0",
+        "name": "05 删除任务",
+        "request": {
+          "description": {
+            "content": "删除任务，成功返回 204 No Content。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks",
+              "{{taskId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "DELETE"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "0076a1ec-c454-4313-b198-8069b4a305e8",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 204\", function () {",
+                "  pm.response.to.have.status(204);",
+                "});",
+                "",
+                "pm.test(\"删除成功时没有响应体\", function () {",
+                "  pm.expect(pm.response.text()).to.eql(\"\");",
+                "});"
+              ],
+              "_lastExecutionId": "eb0b3f8e-e39e-4340-8181-1f04904cdab2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ec18bd3b-3b3b-4769-abf3-eade1c241191",
+        "name": "06 查询已删除任务（应 404）",
+        "request": {
+          "description": {
+            "content": "验证删除后该 id 已经查不到，返回 404。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks",
+              "{{taskId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "18df6b82-d348-4403-bfa1-08dd28453239",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 404\", function () {",
+                "  pm.response.to.have.status(404);",
+                "});",
+                "",
+                "const body = pm.response.json();",
+                "",
+                "pm.test(\"返回统一的错误结构\", function () {",
+                "  pm.expect(body.status).to.eql(404);",
+                "  pm.expect(body.message).to.include(\"任务不存在\");",
+                "});"
+              ],
+              "_lastExecutionId": "d8cdb20f-7a4a-4f69-a13a-705e7d508558"
+            }
+          }
+        ]
+      },
+      {
+        "id": "8bd997cd-1ac7-46e0-8ac9-759a46724a51",
+        "name": "07 参数校验：空标题（应 400）",
+        "request": {
+          "description": {
+            "content": "验证参数校验：标题为空时返回 400，并指出 title 字段错误。",
+            "type": "text/plain"
+          },
+          "url": {
+            "path": [
+              "api",
+              "tasks"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "ffbb01fa-218f-4c41-90b8-ebe792a917be",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"状态码为 400\", function () {",
+                "  pm.response.to.have.status(400);",
+                "});",
+                "",
+                "const body = pm.response.json();",
+                "",
+                "pm.test(\"返回 title 字段错误\", function () {",
+                "  pm.expect(body.fieldErrors.title).to.eql(\"标题不能为空\");",
+                "});"
+              ],
+              "_lastExecutionId": "5961dc09-12b0-4504-9e40-c01c06d4b465"
+            }
+          }
+        ]
+      }
+    ],
+    "event": [],
+    "variable": [
+      {
+        "type": "string",
+        "value": "http://localhost:8080",
+        "key": "baseUrl"
+      },
+      {
+        "type": "string",
+        "value": "",
+        "key": "taskId"
+      }
+    ],
+    "info": {
+      "_postman_id": "8f14e45f-ceea-4d7a-9e4b-2f9d0e3a7c11",
+      "name": "任务清单 API（学习项目）",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "任务清单后端的 5 个 REST 接口测试集合。\n\n使用前先启动后端，然后确认集合变量 baseUrl 是 http://localhost:8080。\n按顺序运行即可：新增 → 查全部 → 查单个 → 更新 → 删除 → 验证 404。",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": {
+    "_": {
+      "postman_variable_scope": "environment"
+    },
+    "id": "2e2dbb3f-0bf2-4f5a-b88c-6c6ebf2e3d42",
+    "name": "任务清单-本地环境",
+    "values": [
+      {
+        "type": "any",
+        "value": "http://localhost:8080",
+        "key": "baseUrl"
+      }
+    ]
+  },
+  "globals": {
+    "id": "45d61fc4-11ee-4d73-9f85-28477e86e103",
+    "values": []
+  },
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 7,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 7,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 7,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 7,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 7,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 7,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 0,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 12,
+      "responseMin": 5,
+      "responseMax": 28,
+      "responseSd": 7.559289460184545,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1792481041429,
+      "completed": 1792481042062
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 7,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "23fd0b17-d9cb-4454-b646-9eb2d2e22a22",
+          "httpRequestId": "2b49f3ea-7223-41ee-91cf-760191041af1"
+        },
+        "item": {
+          "id": "b0fcd1dc-a8ea-411a-922f-0d786acef16b",
+          "name": "01 新增任务",
+          "request": {
+            "description": {
+              "content": "新增一个任务。status 可以不传，默认是 TODO。成功返回 201 和 Location 响应头。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查\",\n  \"status\": \"TODO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "02e32ead-da50-49d3-9375-f39101c95054",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 201\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "",
+                  "pm.test(\"返回完整的任务字段\", function () {",
+                  "  pm.expect(body.id).to.be.a(\"number\");",
+                  "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查\");",
+                  "  pm.expect(body.status).to.eql(\"TODO\");",
+                  "  pm.expect(body.createdAt).to.match(/^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$/);",
+                  "});",
+                  "",
+                  "pm.test(\"响应头包含 Location\", function () {",
+                  "  pm.expect(pm.response.headers.has(\"Location\")).to.be.true;",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"taskId\", body.id);"
+                ],
+                "_lastExecutionId": "37669502-eac3-4c66-8c99-14034050f7d9"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "新增一个任务。status 可以不传，默认是 TODO。成功返回 201 和 Location 响应头。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "5aad24f7-ce06-4778-af0e-0412d862727d",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "68",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查\",\n  \"status\": \"TODO\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "d71340ce-1bf2-4cdf-b36a-75b2a501d8c8",
+          "status": "Created",
+          "code": 201,
+          "header": [
+            {
+              "key": "Location",
+              "value": "http://localhost:8080/api/tasks/3"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:01 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              229,
+              173,
+              166,
+              228,
+              185,
+              160,
+              32,
+              83,
+              112,
+              114,
+              105,
+              110,
+              103,
+              32,
+              66,
+              111,
+              111,
+              116,
+              32,
+              229,
+              162,
+              158,
+              229,
+              136,
+              160,
+              230,
+              148,
+              185,
+              230,
+              159,
+              165,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              84,
+              79,
+              68,
+              79,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              48,
+              45,
+              50,
+              48,
+              32,
+              49,
+              53,
+              58,
+              50,
+              52,
+              58,
+              48,
+              49,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 28,
+          "responseSize": 100
+        },
+        "id": "b0fcd1dc-a8ea-411a-922f-0d786acef16b",
+        "assertions": [
+          {
+            "assertion": "状态码为 201",
+            "skipped": false
+          },
+          {
+            "assertion": "返回完整的任务字段",
+            "skipped": false
+          },
+          {
+            "assertion": "响应头包含 Location",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "99a59e94-0ed1-4000-b772-64d70367127d",
+          "length": 7,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "41909aad-6b82-4139-8ddb-a90b19aa7ff5"
+        },
+        "item": {
+          "id": "eee7f124-4205-4ba0-bc59-729ff5274e10",
+          "name": "02 查询全部任务",
+          "request": {
+            "description": {
+              "content": "查询全部任务，按创建时间倒序返回。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ef2b0e16-a560-467b-b2ba-6dfcd2704f50",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const tasks = pm.response.json();",
+                  "const taskId = Number(pm.collectionVariables.get(\"taskId\"));",
+                  "",
+                  "pm.test(\"返回 JSON 数组\", function () {",
+                  "  pm.expect(tasks).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"列表中包含刚新增的任务\", function () {",
+                  "  pm.expect(tasks.map(function (task) { return task.id; })).to.include(taskId);",
+                  "});"
+                ],
+                "_lastExecutionId": "4be24f59-c4ce-49b6-9112-f27f2bbf36c1"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "查询全部任务，按创建时间倒序返回。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "fb704c68-7973-4560-b04a-3e8d9073a1ab",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "706dce5d-0d25-4b81-9590-278682c48ac8",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:01 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              91,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              229,
+              173,
+              166,
+              228,
+              185,
+              160,
+              32,
+              83,
+              112,
+              114,
+              105,
+              110,
+              103,
+              32,
+              66,
+              111,
+              111,
+              116,
+              32,
+              229,
+              162,
+              158,
+              229,
+              136,
+              160,
+              230,
+              148,
+              185,
+              230,
+              159,
+              165,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              84,
+              79,
+              68,
+              79,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              48,
+              45,
+              50,
+              48,
+              32,
+              49,
+              53,
+              58,
+              50,
+              52,
+              58,
+              48,
+              49,
+              34,
+              125,
+              93
+            ]
+          },
+          "cookie": [],
+          "responseTime": 8,
+          "responseSize": 102
+        },
+        "id": "eee7f124-4205-4ba0-bc59-729ff5274e10",
+        "assertions": [
+          {
+            "assertion": "状态码为 200",
+            "skipped": false
+          },
+          {
+            "assertion": "返回 JSON 数组",
+            "skipped": false
+          },
+          {
+            "assertion": "列表中包含刚新增的任务",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "5c3aa9e4-2032-467a-9cda-b0278cc9c3c9",
+          "length": 7,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "56f1f310-3e94-411b-bfad-0383cf0d872a"
+        },
+        "item": {
+          "id": "4802f833-73ba-4cfb-ae94-e74e7204148c",
+          "name": "03 查询单个任务",
+          "request": {
+            "description": {
+              "content": "按 id 查询单个任务，不存在时返回 404。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks",
+                "{{taskId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f5ffc530-bc91-4198-9939-be2a69bdeb54",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "const taskId = Number(pm.collectionVariables.get(\"taskId\"));",
+                  "",
+                  "pm.test(\"返回指定 id 的任务\", function () {",
+                  "  pm.expect(body.id).to.eql(taskId);",
+                  "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查\");",
+                  "});"
+                ],
+                "_lastExecutionId": "24aff6a4-ee72-4aa0-9b46-efeb3dbf931d"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "按 id 查询单个任务，不存在时返回 404。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks",
+              "3"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "d0d570db-aae6-45fc-abe3-227ad800c9b5",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "194a2c4a-6f3c-428b-9998-ed8131ff2ec2",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:01 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              229,
+              173,
+              166,
+              228,
+              185,
+              160,
+              32,
+              83,
+              112,
+              114,
+              105,
+              110,
+              103,
+              32,
+              66,
+              111,
+              111,
+              116,
+              32,
+              229,
+              162,
+              158,
+              229,
+              136,
+              160,
+              230,
+              148,
+              185,
+              230,
+              159,
+              165,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              84,
+              79,
+              68,
+              79,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              48,
+              45,
+              50,
+              48,
+              32,
+              49,
+              53,
+              58,
+              50,
+              52,
+              58,
+              48,
+              49,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 6,
+          "responseSize": 100
+        },
+        "id": "4802f833-73ba-4cfb-ae94-e74e7204148c",
+        "assertions": [
+          {
+            "assertion": "状态码为 200",
+            "skipped": false
+          },
+          {
+            "assertion": "返回指定 id 的任务",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "80586e7d-fc69-402d-8162-2090434c965d",
+          "length": 7,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "e4518612-94c3-47ee-b72a-8f8ee482e9d0"
+        },
+        "item": {
+          "id": "15806eb8-5206-44f3-b8eb-1a13525ee7f0",
+          "name": "04 更新任务",
+          "request": {
+            "description": {
+              "content": "整体更新任务。PUT 要求同时提交 title 和 status。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks",
+                "{{taskId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查（已完成）\",\n  \"status\": \"DONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "366cb04b-8467-4b5f-bfd9-e006a707e012",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "",
+                  "pm.test(\"标题和状态都已更新\", function () {",
+                  "  pm.expect(body.title).to.eql(\"学习 Spring Boot 增删改查（已完成）\");",
+                  "  pm.expect(body.status).to.eql(\"DONE\");",
+                  "});",
+                  "",
+                  "pm.test(\"创建时间保持不变\", function () {",
+                  "  pm.expect(body.createdAt).to.be.a(\"string\");",
+                  "});"
+                ],
+                "_lastExecutionId": "d9610e37-9b08-4476-88d0-2aaa3ce2f397"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "整体更新任务。PUT 要求同时提交 title 和 status。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks",
+              "3"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "30ae299b-cb96-484f-b6f5-6567be04025b",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "83",
+              "system": true
+            }
+          ],
+          "method": "PUT",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"学习 Spring Boot 增删改查（已完成）\",\n  \"status\": \"DONE\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "a2552d0b-d443-43c8-bf05-0344c366f26f",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:01 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              51,
+              44,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              229,
+              173,
+              166,
+              228,
+              185,
+              160,
+              32,
+              83,
+              112,
+              114,
+              105,
+              110,
+              103,
+              32,
+              66,
+              111,
+              111,
+              116,
+              32,
+              229,
+              162,
+              158,
+              229,
+              136,
+              160,
+              230,
+              148,
+              185,
+              230,
+              159,
+              165,
+              239,
+              188,
+              136,
+              229,
+              183,
+              178,
+              229,
+              174,
+              140,
+              230,
+              136,
+              144,
+              239,
+              188,
+              137,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              68,
+              79,
+              78,
+              69,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              48,
+              45,
+              50,
+              48,
+              32,
+              49,
+              53,
+              58,
+              50,
+              52,
+              58,
+              48,
+              49,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 15,
+          "responseSize": 115
+        },
+        "id": "15806eb8-5206-44f3-b8eb-1a13525ee7f0",
+        "assertions": [
+          {
+            "assertion": "状态码为 200",
+            "skipped": false
+          },
+          {
+            "assertion": "标题和状态都已更新",
+            "skipped": false
+          },
+          {
+            "assertion": "创建时间保持不变",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "04030bda-367c-4194-abbd-e6eab8df63b6",
+          "length": 7,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "48cd3c1a-2eb2-4a50-89ae-122fbde24c58"
+        },
+        "item": {
+          "id": "a828696e-f0fc-4634-8faa-f1f59baf7ac0",
+          "name": "05 删除任务",
+          "request": {
+            "description": {
+              "content": "删除任务，成功返回 204 No Content。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks",
+                "{{taskId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "0076a1ec-c454-4313-b198-8069b4a305e8",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 204\", function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"删除成功时没有响应体\", function () {",
+                  "  pm.expect(pm.response.text()).to.eql(\"\");",
+                  "});"
+                ],
+                "_lastExecutionId": "eb0b3f8e-e39e-4340-8181-1f04904cdab2"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "删除任务，成功返回 204 No Content。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks",
+              "3"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "3524c28f-0011-49a8-a4c9-9ae3243e3f19",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "DELETE"
+        },
+        "response": {
+          "id": "d3b3af2a-7d0c-40cd-be90-43f0b9bd77fc",
+          "status": "No Content",
+          "code": 204,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:01 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": []
+          },
+          "cookie": [],
+          "responseTime": 15,
+          "responseSize": 0
+        },
+        "id": "a828696e-f0fc-4634-8faa-f1f59baf7ac0",
+        "assertions": [
+          {
+            "assertion": "状态码为 204",
+            "skipped": false
+          },
+          {
+            "assertion": "删除成功时没有响应体",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "eab7868a-8f81-40c8-9da5-38fd9b5e0c6d",
+          "length": 7,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "4d5a5b4b-e0e6-4a97-b391-0919e39a8494"
+        },
+        "item": {
+          "id": "ec18bd3b-3b3b-4769-abf3-eade1c241191",
+          "name": "06 查询已删除任务（应 404）",
+          "request": {
+            "description": {
+              "content": "验证删除后该 id 已经查不到，返回 404。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks",
+                "{{taskId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "18df6b82-d348-4403-bfa1-08dd28453239",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 404\", function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "",
+                  "pm.test(\"返回统一的错误结构\", function () {",
+                  "  pm.expect(body.status).to.eql(404);",
+                  "  pm.expect(body.message).to.include(\"任务不存在\");",
+                  "});"
+                ],
+                "_lastExecutionId": "d8cdb20f-7a4a-4f69-a13a-705e7d508558"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "验证删除后该 id 已经查不到，返回 404。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks",
+              "3"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "dc091a2f-0294-446c-8542-73281c30986c",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "f1050d50-2e21-48cf-b845-bbc433a1b2d3",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:01 GMT"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=60"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              52,
+              48,
+              52,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              78,
+              111,
+              116,
+              32,
+              70,
+              111,
+              117,
+              110,
+              100,
+              34,
+              44,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              228,
+              187,
+              187,
+              229,
+              138,
+              161,
+              228,
+              184,
+              141,
+              229,
+              173,
+              152,
+              229,
+              156,
+              168,
+              239,
+              188,
+              140,
+              105,
+              100,
+              61,
+              51,
+              34,
+              44,
+              34,
+              112,
+              97,
+              116,
+              104,
+              34,
+              58,
+              34,
+              47,
+              97,
+              112,
+              105,
+              47,
+              116,
+              97,
+              115,
+              107,
+              115,
+              47,
+              51,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              48,
+              45,
+              50,
+              48,
+              32,
+              49,
+              53,
+              58,
+              50,
+              52,
+              58,
+              48,
+              49,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 7,
+          "responseSize": 125
+        },
+        "id": "ec18bd3b-3b3b-4769-abf3-eade1c241191",
+        "assertions": [
+          {
+            "assertion": "状态码为 404",
+            "skipped": false
+          },
+          {
+            "assertion": "返回统一的错误结构",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "77ac8f05-f489-4643-bb19-f3a9f57e8845",
+          "length": 7,
+          "cycles": 1,
+          "position": 6,
+          "iteration": 0,
+          "httpRequestId": "26515023-bd7b-4bb5-8412-6a3096f0d593"
+        },
+        "item": {
+          "id": "8bd997cd-1ac7-46e0-8ac9-759a46724a51",
+          "name": "07 参数校验：空标题（应 400）",
+          "request": {
+            "description": {
+              "content": "验证参数校验：标题为空时返回 400，并指出 title 字段错误。",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "tasks"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ffbb01fa-218f-4c41-90b8-ebe792a917be",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"状态码为 400\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "",
+                  "pm.test(\"返回 title 字段错误\", function () {",
+                  "  pm.expect(body.fieldErrors.title).to.eql(\"标题不能为空\");",
+                  "});"
+                ],
+                "_lastExecutionId": "5961dc09-12b0-4504-9e40-c01c06d4b465"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "验证参数校验：标题为空时返回 400，并指出 title 字段错误。",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "api",
+              "tasks"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "51dd2e3e-1c3f-4486-a381-a9f8ac6e6a77",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:8080",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "17",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "1dde2c68-3bb0-400e-abe9-632b56860cc4",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            },
+            {
+              "key": "Date",
+              "value": "Tue, 20 Oct 2026 07:24:02 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              52,
+              48,
+              48,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              66,
+              97,
+              100,
+              32,
+              82,
+              101,
+              113,
+              117,
+              101,
+              115,
+              116,
+              34,
+              44,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              232,
+              175,
+              183,
+              230,
+              177,
+              130,
+              229,
+              143,
+              130,
+              230,
+              149,
+              176,
+              230,
+              160,
+              161,
+              233,
+              170,
+              140,
+              229,
+              164,
+              177,
+              232,
+              180,
+              165,
+              34,
+              44,
+              34,
+              112,
+              97,
+              116,
+              104,
+              34,
+              58,
+              34,
+              47,
+              97,
+              112,
+              105,
+              47,
+              116,
+              97,
+              115,
+              107,
+              115,
+              34,
+              44,
+              34,
+              102,
+              105,
+              101,
+              108,
+              100,
+              69,
+              114,
+              114,
+              111,
+              114,
+              115,
+              34,
+              58,
+              123,
+              34,
+              116,
+              105,
+              116,
+              108,
+              101,
+              34,
+              58,
+              34,
+              230,
+              160,
+              135,
+              233,
+              162,
+              152,
+              228,
+              184,
+              141,
+              232,
+              131,
+              189,
+              228,
+              184,
+              186,
+              231,
+              169,
+              186,
+              34,
+              125,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              48,
+              45,
+              50,
+              48,
+              32,
+              49,
+              53,
+              58,
+              50,
+              52,
+              58,
+              48,
+              50,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 5,
+          "responseSize": 172
+        },
+        "id": "8bd997cd-1ac7-46e0-8ac9-759a46724a51",
+        "assertions": [
+          {
+            "assertion": "状态码为 400",
+            "skipped": false
+          },
+          {
+            "assertion": "返回 title 字段错误",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 714
+    },
+    "failures": [],
+    "error": null
+  }
+}

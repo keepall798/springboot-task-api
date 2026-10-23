@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>任务清单 API 测试记录</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 42px;
+      background: #f3f6fb;
+      color: #1f2d3d;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    }
+    .page { max-width: 1220px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #123a63, #1f6f8b);
+      color: white;
+      border-radius: 18px;
+      padding: 32px 38px;
+      box-shadow: 0 12px 30px rgba(18, 58, 99, .18);
+    }
+    h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: .5px; }
+    .subtitle { opacity: .82; font-size: 14px; }
+    .stats { display: flex; gap: 16px; margin: 24px 0; }
+    .stat {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid #e3eaf3;
+      box-shadow: 0 5px 14px rgba(31, 45, 61, .05);
+    }
+    .stat b { display: block; font-size: 30px; color: #1f6f8b; }
+    .stat span { color: #6b7c93; font-size: 13px; }
+    .meta {
+      background: white;
+      border: 1px solid #e3eaf3;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: #52657a;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .card {
+      background: white;
+      border: 1px solid #e3eaf3;
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 5px 14px rgba(31, 45, 61, .04);
+      page-break-inside: avoid;
+    }
+    .card-head { display: flex; justify-content: space-between; align-items: center; }
+    .card-head strong { font-size: 16px; }
+    .index {
+      display: inline-block;
+      color: #1f6f8b;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      padding: 5px 10px;
+      border-radius: 99px;
+    }
+    .badge.pass { color: #137547; background: #e4f6ec; }
+    .badge.fail { color: #b42318; background: #fee4e2; }
+    .line { display: flex; align-items: center; gap: 12px; margin: 14px 0; flex-wrap: wrap; }
+    .method {
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      border-radius: 6px;
+      padding: 5px 9px;
+    }
+    .method.get { background: #2f6fed; }
+    .method.post { background: #12805c; }
+    .method.put { background: #b76e00; }
+    .method.delete { background: #c4320a; }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      color: #33475b;
+      background: #f4f7fa;
+      border-radius: 5px;
+      padding: 4px 8px;
+    }
+    .status { font-size: 12px; font-weight: 700; }
+    .status.ok { color: #137547; }
+    .status.error { color: #b42318; }
+    .duration { color: #8a99ab; font-size: 12px; margin-left: auto; }
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7c93;
+      margin-bottom: 6px;
+    }
+    pre {
+      margin: 0;
+      min-height: 66px;
+      background: #0f1e2e;
+      color: #dce8f5;
+      border-radius: 9px;
+      padding: 14px 16px;
+      font: 12px/1.65 Consolas, "Courier New", monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .failure { color: #b42318; font-size: 13px; }
+    footer { margin-top: 22px; color: #8a99ab; font-size: 12px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>任务清单 API · 接口测试记录</h1>
+      <div class="subtitle">Spring Boot 3.5.16 + Spring Data JPA + MySQL 5.7.29 · 真实请求与响应</div>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><b>9/9</b><span>测试用例通过</span></div>
+      <div class="stat"><b>0</b><span>失败用例</span></div>
+      <div class="stat"><b>5</b><span>核心 REST 接口</span></div>
+      <div class="stat"><b>2026/10/20 15:23:41</b><span>执行时间</span></div>
+    </div>
+
+    <div class="meta">
+      测试地址：http://localhost:8080 &nbsp;|&nbsp; Node.js：v24.20.0 &nbsp;|&nbsp;
+      数据库：task_manager.task &nbsp;|&nbsp; 测试脚本：<code>scripts/api-smoke-test.mjs</code>
+    </div>
+
+    
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">01</span>
+          <strong>新增任务 A（默认状态 TODO）</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method post">POST</span>
+        <code>/api/tasks</code>
+        <span class="status ok">HTTP 201</span>
+        <span class="duration">52 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>{
+  &quot;title&quot;: &quot;学习 Spring Boot 增删改查-021692&quot;
+}</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;id&quot;: 1,
+  &quot;title&quot;: &quot;学习 Spring Boot 增删改查-021692&quot;,
+  &quot;status&quot;: &quot;TODO&quot;,
+  &quot;createdAt&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">02</span>
+          <strong>新增任务 B（指定状态 IN_PROGRESS）</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method post">POST</span>
+        <code>/api/tasks</code>
+        <span class="status ok">HTTP 201</span>
+        <span class="duration">15 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>{
+  &quot;title&quot;: &quot;整理接口测试记录-021692&quot;,
+  &quot;status&quot;: &quot;IN_PROGRESS&quot;
+}</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;id&quot;: 2,
+  &quot;title&quot;: &quot;整理接口测试记录-021692&quot;,
+  &quot;status&quot;: &quot;IN_PROGRESS&quot;,
+  &quot;createdAt&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">03</span>
+          <strong>查询全部任务</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method get">GET</span>
+        <code>/api/tasks</code>
+        <span class="status ok">HTTP 200</span>
+        <span class="duration">15 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>（无请求体）</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>[
+  {
+    &quot;id&quot;: 2,
+    &quot;title&quot;: &quot;整理接口测试记录-021692&quot;,
+    &quot;status&quot;: &quot;IN_PROGRESS&quot;,
+    &quot;createdAt&quot;: &quot;2026-10-20 15:23:41&quot;
+  },
+  {
+    &quot;id&quot;: 1,
+    &quot;title&quot;: &quot;学习 Spring Boot 增删改查-021692&quot;,
+    &quot;status&quot;: &quot;TODO&quot;,
+    &quot;createdAt&quot;: &quot;2026-10-20 15:23:41&quot;
+  }
+]</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">04</span>
+          <strong>按 id 查询单个任务</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method get">GET</span>
+        <code>/api/tasks/1</code>
+        <span class="status ok">HTTP 200</span>
+        <span class="duration">12 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>（无请求体）</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;id&quot;: 1,
+  &quot;title&quot;: &quot;学习 Spring Boot 增删改查-021692&quot;,
+  &quot;status&quot;: &quot;TODO&quot;,
+  &quot;createdAt&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">05</span>
+          <strong>更新任务（标题 + 状态改为 DONE）</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method put">PUT</span>
+        <code>/api/tasks/1</code>
+        <span class="status ok">HTTP 200</span>
+        <span class="duration">15 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>{
+  &quot;title&quot;: &quot;学习 Spring Boot 增删改查-021692（已更新）&quot;,
+  &quot;status&quot;: &quot;DONE&quot;
+}</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;id&quot;: 1,
+  &quot;title&quot;: &quot;学习 Spring Boot 增删改查-021692（已更新）&quot;,
+  &quot;status&quot;: &quot;DONE&quot;,
+  &quot;createdAt&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">06</span>
+          <strong>删除任务</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method delete">DELETE</span>
+        <code>/api/tasks/1</code>
+        <span class="status ok">HTTP 204</span>
+        <span class="duration">20 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>（无请求体）</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>（无响应体，HTTP 204 No Content）</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">07</span>
+          <strong>查询已删除的任务（应 404）</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method get">GET</span>
+        <code>/api/tasks/1</code>
+        <span class="status error">HTTP 404</span>
+        <span class="duration">9 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>（无请求体）</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;status&quot;: 404,
+  &quot;error&quot;: &quot;Not Found&quot;,
+  &quot;message&quot;: &quot;任务不存在，id=1&quot;,
+  &quot;path&quot;: &quot;/api/tasks/1&quot;,
+  &quot;timestamp&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">08</span>
+          <strong>参数校验：空标题应 400</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method post">POST</span>
+        <code>/api/tasks</code>
+        <span class="status error">HTTP 400</span>
+        <span class="duration">33 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>{
+  &quot;title&quot;: &quot;&quot;
+}</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;status&quot;: 400,
+  &quot;error&quot;: &quot;Bad Request&quot;,
+  &quot;message&quot;: &quot;请求参数校验失败&quot;,
+  &quot;path&quot;: &quot;/api/tasks&quot;,
+  &quot;fieldErrors&quot;: {
+    &quot;title&quot;: &quot;标题不能为空&quot;
+  },
+  &quot;timestamp&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <span class="index">09</span>
+          <strong>非法状态应 400</strong>
+        </div>
+        <span class="badge pass">
+          PASS
+        </span>
+      </div>
+      <div class="line">
+        <span class="method post">POST</span>
+        <code>/api/tasks</code>
+        <span class="status error">HTTP 400</span>
+        <span class="duration">7 ms</span>
+      </div>
+      <div class="columns">
+        <div>
+          <div class="label">请求体</div>
+          <pre>{
+  &quot;title&quot;: &quot;非法状态测试&quot;,
+  &quot;status&quot;: &quot;UNKNOWN&quot;
+}</pre>
+        </div>
+        <div>
+          <div class="label">实际响应体</div>
+          <pre>{
+  &quot;status&quot;: 400,
+  &quot;error&quot;: &quot;Bad Request&quot;,
+  &quot;message&quot;: &quot;请求体 JSON 格式不正确；status 只能是 TODO、IN_PROGRESS、DONE&quot;,
+  &quot;path&quot;: &quot;/api/tasks&quot;,
+  &quot;timestamp&quot;: &quot;2026-10-20 15:23:41&quot;
+}</pre>
+        </div>
+      </div>
+      
+    </section>
+
+    <footer>本页面由 scripts/generate-test-report.mjs 根据真实接口返回自动生成</footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# ===== 构建产物 =====
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== IDE / 编辑器 =====
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+*.log
+
+# ===== 依赖与本地工具 =====
+node_modules/
+.tools/
+.localdb/
+
+# ===== 操作系统 =====
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ===== 敏感信息：绝对不要提交 =====
+.env
+.env.*
+application-local.yml
+application-prod.yml
+
+# ===== 与本项目无关的本地文件 =====
+docs/IPS*
